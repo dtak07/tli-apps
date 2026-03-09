@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>TLI Driver Time Record</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black:        #0a0a0a;
+    --dark:         #111214;
+    --panel:        #1a1c1f;
+    --panel2:       #1f2124;
+    --border:       #2a2d32;
+    --border-light: #3a3d44;
+    --text:         #e8e9eb;
+    --muted:        #7a7f88;
+    --accent:       #f5a623;
+    --accent-dark:  #c4821a;
+    --green:        #2ecc71;
+    --red:          #e74c3c;
+    --blue:         #3498db;
+    --input-bg:     #13151a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--dark);
+    border-bottom: 3px solid var(--accent);
+    padding: 16px 20px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 500px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .logo span {
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 13px;
+    display: block;
+    letter-spacing: 0.12em;
+    margin-top: -2px;
+  }
+  .date-badge { text-align: right; font-family: 'Barlow Condensed', sans-serif; }
+  .date-badge .day { font-size: 28px; font-weight: 700; line-height: 1; }
+  .date-badge .month-year { font-size: 12px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* ── MAIN ── */
+  .main { max-width: 500px; margin: 0 auto; padding: 20px 16px 0; }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 20px;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: slideUp 0.4s ease forwards;
+  }
+  .section:nth-child(1) { animation-delay: 0.05s; }
+  .section:nth-child(2) { animation-delay: 0.10s; }
+  .section:nth-child(3) { animation-delay: 0.15s; }
+  .section:nth-child(4) { animation-delay: 0.20s; }
+  .section:nth-child(5) { animation-delay: 0.25s; }
+  .section:nth-child(6) { animation-delay: 0.30s; }
+  .section:nth-child(7) { animation-delay: 0.35s; }
+
+  @keyframes slideUp { to { opacity:1; transform:translateY(0); } }
+
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  /* ── FIELDS ── */
+  .field {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .field:last-child { border-bottom: none; }
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    min-width: 90px;
+    flex-shrink: 0;
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    background: var(--input-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 10px 12px;
+    flex: 1;
+    width: 100%;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7f88' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-color: var(--input-bg);
+    padding-right: 36px;
+    cursor: pointer;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(245,166,35,0.12);
+  }
+  .field input[readonly] { color: var(--muted); cursor: default; }
+  .field textarea { resize: none; min-height: 80px; line-height: 1.5; }
+
+  /* ── GEOTAB STATUS BANNER ── */
+  .geotab-banner {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .geotab-banner.loading { display: flex; color: var(--muted); }
+  .geotab-banner.success { display: flex; color: var(--green); }
+  .geotab-banner.error   { display: flex; color: var(--red); }
+  .geotab-banner.manual  { display: flex; color: var(--muted); }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--border-light);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── PREFILL BADGE ── */
+  .prefill-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(52,152,219,0.15);
+    border: 1px solid rgba(52,152,219,0.3);
+    color: var(--blue);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-left: 6px;
+  }
+  .prefill-badge.hidden { display: none; }
+
+  /* ── TIME ROW ── */
+  .time-row { display: grid; grid-template-columns: 1fr 1fr; }
+  .time-cell {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .time-cell:first-child { border-right: 1px solid var(--border); }
+  .time-cell-label {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .time-cell input {
+    background: var(--input-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 24px; font-weight: 600;
+    padding: 10px 12px; width: 100%; text-align: center;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    -webkit-appearance: none; appearance: none;
+  }
+  .time-cell input:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(245,166,35,0.12);
+  }
+  .time-cell input.prefilled { border-color: rgba(52,152,219,0.4); }
+
+  /* ── HOURS DISPLAY ── */
+  .hours-display { display: grid; grid-template-columns: 1fr 1fr; }
+  .hours-cell {
+    padding: 16px; text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .hours-cell:last-child { border-right: none; }
+  .hours-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 38px; font-weight: 900; color: var(--accent); line-height: 1;
+  }
+  .hours-value.warn { color: var(--red); }
+  .hours-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; font-weight: 600; }
+
+  /* ── TOGGLE ── */
+  .toggle-row {
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer;
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-label { font-size: 15px; font-weight: 500; }
+  .toggle-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .toggle {
+    width: 48px; height: 28px; background: var(--border-light);
+    border-radius: 14px; position: relative; transition: background 0.2s; flex-shrink: 0;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle::after {
+    content: ''; position: absolute;
+    width: 22px; height: 22px; background: white; border-radius: 50%;
+    top: 3px; left: 3px; transition: transform 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  }
+  .toggle.on::after { transform: translateX(20px); }
+
+  /* ── CHECKLIST ── */
+  .check-item {
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 14px; cursor: pointer;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-item:active { background: rgba(255,255,255,0.03); }
+  .checkbox {
+    width: 26px; height: 26px; border: 2px solid var(--border-light);
+    border-radius: 4px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .checkbox.checked { background: var(--accent); border-color: var(--accent); }
+  .checkbox svg { display: none; }
+  .checkbox.checked svg { display: block; }
+  .check-text { font-size: 15px; font-weight: 500; line-height: 1.3; }
+  .check-item.checked .check-text { color: var(--muted); text-decoration: line-through; }
+
+  /* ── ALERTS ── */
+  .alert {
+    border-radius: 6px; padding: 12px 14px;
+    font-size: 13px; line-height: 1.5; margin-bottom: 12px; display: none;
+  }
+  .alert.show { display: block; }
+  .alert.error {
+    background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.4); color: #ff8a80;
+  }
+  .alert.warning {
+    background: rgba(245,166,35,0.08); border: 1px solid rgba(245,166,35,0.3); color: var(--accent);
+  }
+  .alert strong { display: block; margin-bottom: 2px; font-size: 14px; }
+
+  /* ── SUBMIT ── */
+  .submit-btn {
+    width: 100%; background: var(--accent); color: var(--black);
+    border: none; border-radius: 6px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px; font-weight: 900; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 18px; cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .submit-btn:active { background: var(--accent-dark); transform: scale(0.98); }
+  .submit-btn:disabled { background: var(--border-light); color: var(--muted); cursor: not-allowed; }
+
+  /* ── SUCCESS ── */
+  .success-screen { display: none; text-align: center; padding: 60px 20px; }
+  .success-screen.show { display: block; }
+  .success-icon {
+    width: 80px; height: 80px; background: var(--green); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    animation: pop 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+  }
+  @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+  .success-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px; font-weight: 900; text-transform: uppercase; margin-bottom: 8px;
+  }
+  .success-sub { color: var(--muted); font-size: 15px; line-height: 1.5; margin-bottom: 32px; }
+
+  .summary-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 6px; padding: 0; text-align: left; margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .summary-row {
+    display: flex; justify-content: space-between;
+    padding: 11px 16px; border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-key { color: var(--muted); }
+  .summary-val { font-weight: 600; }
+  .summary-val.geotab { color: var(--blue); }
+
+  .new-btn {
+    background: var(--panel); border: 1px solid var(--border-light);
+    color: var(--text); border-radius: 6px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 14px 24px; cursor: pointer; width: 100%;
+    transition: border-color 0.15s;
+  }
+  .new-btn:hover { border-color: var(--accent); }
+
+  /* ── API STATUS PILL ── */
+  .api-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 3px 9px; border-radius: 20px;
+  }
+  .api-pill.connected { background: rgba(46,204,113,0.12); color: var(--green); border: 1px solid rgba(46,204,113,0.3); }
+  .api-pill.disconnected { background: rgba(231,76,60,0.12); color: var(--red); border: 1px solid rgba(231,76,60,0.3); }
+  .api-pill.loading { background: rgba(245,166,35,0.1); color: var(--accent); border: 1px solid rgba(245,166,35,0.3); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-inner">
+    <div class="logo">
+      TLI
+      <span>Takehara Landscape Inc.</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+      <div id="api-status" class="api-pill loading"><div class="dot"></div>Connecting...</div>
+      <div class="date-badge">
+        <div class="day" id="hdr-day">--</div>
+        <div class="month-year" id="hdr-date">--- ----</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ FORM ══════════════ -->
+<div class="main" id="form-view">
+
+  <!-- 1. DRIVER INFO -->
+  <div class="section">
+    <div class="section-label">Driver Info</div>
+    <div class="card">
+      <div class="field">
+        <div class="field-label">Driver</div>
+        <select id="driver-name">
+          <option value="">Select driver...</option>
+          <option>Carlos Mendoza</option>
+          <option>Jose Rivera</option>
+          <option>Miguel Santos</option>
+          <option>David Kim</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field" id="other-driver-field" style="display:none">
+        <div class="field-label">Name</div>
+        <input type="text" id="other-driver-name" placeholder="Enter full name">
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. TRUCK + DATE (triggers Geotab fetch) -->
+  <div class="section">
+    <div class="section-label">Assignment</div>
+    <div class="card">
+      <div class="field">
+        <div class="field-label">Truck</div>
+        <select id="truck-select" onchange="onTruckOrDateChange()">
+          <option value="">Loading trucks...</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="field-label">Date</div>
+        <input type="date" id="work-date" onchange="onTruckOrDateChange()">
+      </div>
+      <div class="field">
+        <div class="field-label">Job / Site</div>
+        <input type="text" id="job-site" placeholder="e.g. Mountain House HS">
+      </div>
+      <div class="field">
+        <div class="field-label">Headquarters</div>
+        <input type="text" id="hq" value="Lodi, CA" readonly>
+      </div>
+      <!-- Geotab fetch status -->
+      <div class="geotab-banner" id="geotab-banner">
+        <div id="geotab-icon"></div>
+        <div id="geotab-msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. HOURS -->
+  <div class="section">
+    <div class="section-label">
+      Hours of Service
+      <span class="prefill-badge hidden" id="hours-badge">● Geotab</span>
+    </div>
+    <div class="card">
+      <div class="time-row">
+        <div class="time-cell">
+          <div class="time-cell-label">
+            Start (All Duty)
+          </div>
+          <input type="time" id="start-time" oninput="calcHours()">
+        </div>
+        <div class="time-cell">
+          <div class="time-cell-label">
+            End (All Duty)
+          </div>
+          <input type="time" id="end-time" oninput="calcHours()">
+        </div>
+      </div>
+      <div class="hours-display">
+        <div class="hours-cell">
+          <div class="hours-value" id="total-hours">--</div>
+          <div class="hours-label">Total Hours</div>
+        </div>
+        <div class="hours-cell">
+          <div class="hours-value" id="driving-hours-display">--</div>
+          <div class="hours-label">Driving Hours</div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">
+          Driving Hrs
+          <span class="prefill-badge hidden" id="driving-badge">● Geo</span>
+        </div>
+        <input type="number" id="driving-input" placeholder="Hours driving" min="0" max="12" step="0.5" oninput="calcHours()">
+      </div>
+      <div class="field">
+        <div class="field-label">
+          Miles
+          <span class="prefill-badge hidden" id="miles-badge">● Geo</span>
+        </div>
+        <input type="number" id="miles" placeholder="Total miles driven" min="0">
+      </div>
+    </div>
+    <div class="alert error" id="hours-alert">
+      <strong>⚠️ Over 12-Hour Limit</strong>
+      Short-haul exemption requires release within 12 hours. A full Driver's Daily Log is required for this shift. Contact the office.
+    </div>
+  </div>
+
+  <!-- 4. EXEMPTION STATUS -->
+  <div class="section">
+    <div class="section-label">Exemption Status</div>
+    <div class="card">
+      <div class="toggle-row" onclick="toggleRadius()">
+        <div>
+          <div class="toggle-label">Within 100 Air Miles?</div>
+          <div class="toggle-sub">All work within 100 air miles of Lodi yard</div>
+        </div>
+        <div class="toggle on" id="radius-toggle"></div>
+      </div>
+    </div>
+    <div class="alert warning" id="radius-warning" style="margin-top:8px">
+      <strong>⚠️ Paper Log Required</strong>
+      When operating beyond 100 air miles, a Driver's Daily Log (grid form) must be completed. Contact the office before proceeding.
+    </div>
+  </div>
+
+  <!-- 5. PRE-TRIP INSPECTION -->
+  <div class="section">
+    <div class="section-label">Pre-Trip Inspection</div>
+    <div class="card" id="checklist"></div>
+  </div>
+
+  <!-- 6. REMARKS -->
+  <div class="section">
+    <div class="section-label">Remarks</div>
+    <div class="card">
+      <div class="field" style="align-items:flex-start;">
+        <textarea id="remarks" placeholder="Delays, incidents, issues, notes..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. SUBMIT -->
+  <div class="section">
+    <div class="alert error" id="submit-alert"></div>
+    <button class="submit-btn" id="submit-btn" onclick="submitForm()">Submit Time Record</button>
+  </div>
+
+</div><!-- /form-view -->
+
+<!-- ══════════════ SUCCESS ══════════════ -->
+<div class="main success-screen" id="success-view">
+  <div class="success-icon">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+  </div>
+  <div class="success-title">Submitted</div>
+  <div class="success-sub" id="success-sub">Time record saved.<br>Have a safe rest of your day.</div>
+  <div class="summary-card" id="summary-card"></div>
+  <button class="new-btn" onclick="resetForm()">New Entry</button>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// CONFIG — update API_BASE to your Render URL after deploy
+// ════════════════════════════════════════════════════════════
+const API_BASE = "https://tli-timecard-api.onrender.com";  // ← UPDATE THIS
+
+// ── DATE HEADER ──────────────────────────────────────────────
+const now = new Date();
+const DAYS   = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+document.getElementById('hdr-day').textContent  = DAYS[now.getDay()];
+document.getElementById('hdr-date').textContent = MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+const todayStr = now.toISOString().split('T')[0];
+document.getElementById('work-date').value = todayStr;
+
+// ── STATE ─────────────────────────────────────────────────────
+let devices      = [];     // [{id, name}, ...]
+let radiusOk     = true;
+let geotabPrefill = false;
+const checkState = {};
+
+// ── CHECKLIST ─────────────────────────────────────────────────
+const CHECK_ITEMS = [
+  'Brakes functional',
+  'Lights & signals working',
+  'Mirrors adjusted',
+  'Tires — no flats or damage',
+  'Fluid levels OK',
+  'Seatbelt functional',
+  'Fire extinguisher present',
+  'Dump bed secured',
+];
+const checklistEl = document.getElementById('checklist');
+CHECK_ITEMS.forEach((item, i) => {
+  checkState[i] = false;
+  const div = document.createElement('div');
+  div.className = 'check-item';
+  div.id = 'ci-' + i;
+  div.onclick = () => toggleCheck(i);
+  div.innerHTML = `
+    <div class="checkbox" id="cb-${i}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+    <div class="check-text">${item}</div>
+  `;
+  checklistEl.appendChild(div);
+});
+function toggleCheck(i) {
+  checkState[i] = !checkState[i];
+  document.getElementById('cb-' + i).className = 'checkbox' + (checkState[i] ? ' checked' : '');
+  document.getElementById('ci-' + i).className = 'check-item' + (checkState[i] ? ' checked' : '');
+}
+
+// ── DRIVER DROPDOWN ───────────────────────────────────────────
+document.getElementById('driver-name').addEventListener('change', function() {
+  document.getElementById('other-driver-field').style.display =
+    this.value === 'Other' ? 'flex' : 'none';
+});
+
+// ── LOAD DEVICES FROM API ─────────────────────────────────────
+async function loadDevices() {
+  setApiStatus('loading', 'Connecting...');
+  try {
+    const r = await fetch(`${API_BASE}/devices`);
+    if (!r.ok) throw new Error('API error ' + r.status);
+    const data = await r.json();
+    devices = data.devices || [];
+
+    const sel = document.getElementById('truck-select');
+    sel.innerHTML = '<option value="">Select truck...</option>';
+    devices.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d.id;
+      opt.textContent = d.name;
+      sel.appendChild(opt);
+    });
+
+    setApiStatus('connected', 'Geotab Connected');
+  } catch (e) {
+    console.error('loadDevices failed:', e);
+    // Fall back to manual truck list
+    const sel = document.getElementById('truck-select');
+    sel.innerHTML = `
+      <option value="">Select truck...</option>
+      <option value="manual-T101">T-101</option>
+      <option value="manual-T102">T-102</option>
+      <option value="manual-T103">T-103</option>
+      <option value="manual-T104">T-104</option>
+      <option value="manual-T105">T-105</option>
+    `;
+    setApiStatus('disconnected', 'Manual Mode');
+  }
+}
+
+function setApiStatus(state, label) {
+  const el = document.getElementById('api-status');
+  el.className = 'api-pill ' + state;
+  el.innerHTML = `<div class="dot"></div>${label}`;
+}
+
+// ── GEOTAB TRIP FETCH ─────────────────────────────────────────
+let fetchTimer = null;
+
+function onTruckOrDateChange() {
+  clearTimeout(fetchTimer);
+  fetchTimer = setTimeout(fetchGeotabData, 400);
+}
+
+async function fetchGeotabData() {
+  const deviceId  = document.getElementById('truck-select').value;
+  const workDate  = document.getElementById('work-date').value;
+
+  // Skip if manual fallback IDs or empty
+  if (!deviceId || !workDate || deviceId.startsWith('manual-')) {
+    setGeotabBanner('manual', 'Enter times manually below');
+    return;
+  }
+
+  setGeotabBanner('loading', 'Fetching trip data from Geotab...');
+
+  try {
+    const r = await fetch(
+      `${API_BASE}/trip-data?device_id=${encodeURIComponent(deviceId)}&trip_date=${workDate}`
+    );
+    if (!r.ok) throw new Error('API error ' + r.status);
+    const data = await r.json();
+
+    if (!data.found) {
+      setGeotabBanner('error', 'No trips found for this truck on this date.');
+      clearPrefills();
+      return;
+    }
+
+    // Pre-fill the form
+    prefillTimes(data);
+    setGeotabBanner('success',
+      `✓ Pre-filled from Geotab — ${data.trip_count} trip${data.trip_count !== 1 ? 's' : ''} found`
+    );
+
+  } catch (e) {
+    console.error('fetchGeotabData failed:', e);
+    setGeotabBanner('error', 'Could not reach API. Enter times manually.');
+    clearPrefills();
+  }
+}
+
+function prefillTimes(data) {
+  geotabPrefill = true;
+
+  if (data.first_start) {
+    const el = document.getElementById('start-time');
+    el.value = data.first_start;
+    el.classList.add('prefilled');
+  }
+  if (data.last_stop) {
+    const el = document.getElementById('end-time');
+    el.value = data.last_stop;
+    el.classList.add('prefilled');
+  }
+  if (data.driving_hours != null) {
+    document.getElementById('driving-input').value = data.driving_hours;
+    document.getElementById('driving-badge').classList.remove('hidden');
+  }
+  if (data.total_miles != null) {
+    document.getElementById('miles').value = data.total_miles;
+    document.getElementById('miles-badge').classList.remove('hidden');
+  }
+
+  document.getElementById('hours-badge').classList.remove('hidden');
+  calcHours();
+}
+
+function clearPrefills() {
+  geotabPrefill = false;
+  ['start-time','end-time'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+    el.classList.remove('prefilled');
+  });
+  document.getElementById('driving-input').value = '';
+  document.getElementById('miles').value = '';
+  ['hours-badge','driving-badge','miles-badge'].forEach(id =>
+    document.getElementById(id).classList.add('hidden')
+  );
+  document.getElementById('total-hours').textContent = '--';
+  document.getElementById('driving-hours-display').textContent = '--';
+}
+
+function setGeotabBanner(state, msg) {
+  const banner = document.getElementById('geotab-banner');
+  const icon   = document.getElementById('geotab-icon');
+  const msgEl  = document.getElementById('geotab-msg');
+
+  banner.className = 'geotab-banner ' + state;
+  msgEl.textContent = msg;
+
+  if (state === 'loading') {
+    icon.innerHTML = '<div class="spinner"></div>';
+  } else if (state === 'success') {
+    icon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+  } else if (state === 'error') {
+    icon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
+  } else {
+    icon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
+  }
+}
+
+// ── HOURS CALC ────────────────────────────────────────────────
+function calcHours() {
+  const start   = document.getElementById('start-time').value;
+  const end     = document.getElementById('end-time').value;
+  const driving = parseFloat(document.getElementById('driving-input').value);
+
+  const totalEl   = document.getElementById('total-hours');
+  const drivingEl = document.getElementById('driving-hours-display');
+
+  if (!start || !end) {
+    totalEl.textContent = '--';
+    drivingEl.textContent = '--';
+    return;
+  }
+
+  const [sh,sm] = start.split(':').map(Number);
+  const [eh,em] = end.split(':').map(Number);
+  let mins = (eh*60+em) - (sh*60+sm);
+  if (mins < 0) mins += 24*60;
+  const hrs = (mins/60).toFixed(1);
+
+  totalEl.textContent = hrs;
+  totalEl.className = 'hours-value' + (parseFloat(hrs) > 12 ? ' warn' : '');
+  document.getElementById('hours-alert').className =
+    'alert error' + (parseFloat(hrs) > 12 ? ' show' : '');
+
+  if (!isNaN(driving)) {
+    drivingEl.textContent = driving.toFixed(1);
+  }
+}
+
+// ── RADIUS TOGGLE ─────────────────────────────────────────────
+function toggleRadius() {
+  radiusOk = !radiusOk;
+  document.getElementById('radius-toggle').className = 'toggle' + (radiusOk ? ' on' : '');
+  document.getElementById('radius-warning').className =
+    'alert warning' + (!radiusOk ? ' show' : '');
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────
+async function submitForm() {
+  const driverSel   = document.getElementById('driver-name').value;
+  const driverOther = document.getElementById('other-driver-name').value;
+  const driver      = driverSel === 'Other' ? driverOther : driverSel;
+  const truckSel    = document.getElementById('truck-select');
+  const truckId     = truckSel.value;
+  const truckName   = truckSel.options[truckSel.selectedIndex]?.text || '';
+  const workDate    = document.getElementById('work-date').value;
+  const jobSite     = document.getElementById('job-site').value;
+  const startTime   = document.getElementById('start-time').value;
+  const endTime     = document.getElementById('end-time').value;
+  const driving     = document.getElementById('driving-input').value;
+  const miles       = document.getElementById('miles').value;
+  const remarks     = document.getElementById('remarks').value;
+
+  const alertEl = document.getElementById('submit-alert');
+
+  // Validation
+  const missing = [];
+  if (!driver)    missing.push('Driver name');
+  if (!truckId)   missing.push('Truck');
+  if (!workDate)  missing.push('Date');
+  if (!jobSite)   missing.push('Job / site');
+  if (!startTime) missing.push('Start time');
+  if (!endTime)   missing.push('End time');
+  if (!driving)   missing.push('Driving hours');
+
+  if (missing.length) {
+    alertEl.innerHTML = `<strong>Please complete:</strong> ${missing.join(', ')}`;
+    alertEl.className = 'alert error show';
+    alertEl.scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+  alertEl.className = 'alert error';
+
+  // Compute total hours
+  const [sh,sm] = startTime.split(':').map(Number);
+  const [eh,em] = endTime.split(':').map(Number);
+  let mins = (eh*60+em) - (sh*60+sm);
+  if (mins < 0) mins += 24*60;
+  const totalHrs = parseFloat((mins/60).toFixed(1));
+
+  const payload = {
+    driver_name:    driver,
+    truck_id:       truckId,
+    truck_name:     truckName,
+    work_date:      workDate,
+    job_site:       jobSite,
+    start_time:     startTime,
+    end_time:       endTime,
+    total_hours:    totalHrs,
+    driving_hours:  parseFloat(driving),
+    miles:          miles ? parseFloat(miles) : null,
+    within_radius:  radiusOk,
+    checklist_pct:  Math.round(
+      Object.values(checkState).filter(Boolean).length / CHECK_ITEMS.length * 100
+    ),
+    remarks:        remarks || null,
+    geotab_prefill: geotabPrefill,
+  };
+
+  // Submit
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  try {
+    const r = await fetch(`${API_BASE}/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!r.ok) throw new Error('Submit failed ' + r.status);
+    const result = await r.json();
+    showSuccess(payload, result.id);
+  } catch(e) {
+    alertEl.innerHTML = `<strong>Submission failed.</strong> Check connection and try again.`;
+    alertEl.className = 'alert error show';
+    btn.disabled = false;
+    btn.textContent = 'Submit Time Record';
+  }
+}
+
+// ── SUCCESS ───────────────────────────────────────────────────
+function showSuccess(p, recordId) {
+  const fmt = t => {
+    const [h,m] = t.split(':').map(Number);
+    const ap = h >= 12 ? 'PM' : 'AM';
+    return ((h%12)||12) + ':' + m.toString().padStart(2,'0') + ' ' + ap;
+  };
+  const dateObj = new Date(p.work_date + 'T12:00:00');
+  const dateStr = dateObj.toLocaleDateString('en-US',
+    { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+  const checked = Object.values(checkState).filter(Boolean).length;
+
+  document.getElementById('summary-card').innerHTML = [
+    { k:'Record #',      v: '#' + recordId },
+    { k:'Driver',        v: p.driver_name },
+    { k:'Truck',         v: p.truck_name },
+    { k:'Date',          v: dateStr },
+    { k:'Job Site',      v: p.job_site },
+    { k:'Start',         v: fmt(p.start_time) },
+    { k:'End',           v: fmt(p.end_time) },
+    { k:'Total Hours',   v: p.total_hours + ' hrs' },
+    { k:'Driving Hours', v: p.driving_hours.toFixed(1) + ' hrs' },
+    { k:'Miles',         v: p.miles ? p.miles + ' mi' : '—' },
+    { k:'Pre-Trip',      v: checked + '/' + CHECK_ITEMS.length + ' items' },
+    { k:'Data Source',   v: p.geotab_prefill ? 'Geotab ✓' : 'Manual entry',
+      geotab: p.geotab_prefill },
+    { k:'Exemption',     v: p.within_radius ? '✓ Short-haul (100mi)' : '⚠ Paper log required' },
+  ].map(r => `
+    <div class="summary-row">
+      <span class="summary-key">${r.k}</span>
+      <span class="summary-val${r.geotab ? ' geotab' : ''}">${r.v}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('form-view').style.display = 'none';
+  document.getElementById('success-view').className = 'main success-screen show';
+  window.scrollTo(0, 0);
+}
+
+// ── RESET ─────────────────────────────────────────────────────
+function resetForm() {
+  document.getElementById('form-view').style.display = 'block';
+  document.getElementById('success-view').className = 'main success-screen';
+
+  document.getElementById('driver-name').value = '';
+  document.getElementById('work-date').value = todayStr;
+  document.getElementById('job-site').value = '';
+  document.getElementById('remarks').value = '';
+  document.getElementById('other-driver-field').style.display = 'none';
+  document.getElementById('hours-alert').className = 'alert error';
+  document.getElementById('submit-alert').className = 'alert error';
+  document.getElementById('submit-btn').disabled = false;
+  document.getElementById('submit-btn').textContent = 'Submit Time Record';
+
+  clearPrefills();
+
+  radiusOk = true;
+  document.getElementById('radius-toggle').className = 'toggle on';
+  document.getElementById('radius-warning').className = 'alert warning';
+
+  CHECK_ITEMS.forEach((_,i) => {
+    checkState[i] = false;
+    document.getElementById('cb-' + i).className = 'checkbox';
+    document.getElementById('ci-' + i).className = 'check-item';
+  });
+
+  setGeotabBanner('manual', '');
+  document.getElementById('geotab-banner').className = 'geotab-banner';
+
+  window.scrollTo(0, 0);
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+loadDevices();
+</script>
+</body>
+</html>
