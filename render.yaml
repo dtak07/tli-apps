@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: tli-timecard-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GEOTAB_SERVER
+        sync: false
+      - key: GEOTAB_DATABASE
+        sync: false
+      - key: GEOTAB_USERNAME
+        sync: false
+      - key: GEOTAB_PASSWORD
+        sync: false
